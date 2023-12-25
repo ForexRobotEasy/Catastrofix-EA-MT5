@@ -1,0 +1,72 @@
+mql5
+//+------------------------------------------------------------------+
+//|                                            Catastrofix EA MT5    |
+//|                                         Developed by forexroboteasy.com  |
+//|                                                  Forex Robot Easy Team  |
+//+------------------------------------------------------------------+
+
+// Global variables
+double LotSize = 0.01; // Initial lot size
+double StopLoss = 50; // Stop loss in pips
+double TakeProfit = 100; // Take profit in pips
+double RiskPercentage = 2; // Risk percentage per trade
+
+//+------------------------------------------------------------------+
+//| Expert initialization function                                   |
+//+------------------------------------------------------------------+
+int OnInit()
+{
+    // Set up risk management
+    double AccountBalance = AccountInfoDouble(ACCOUNT_BALANCE);
+    double RiskAmount = AccountBalance * RiskPercentage / 100;
+
+    // Calculate lot size based on risk amount
+    LotSize = NormalizeDouble(RiskAmount / StopLoss / MarketInfo(Symbol(), MODE_TICKVALUE), 2);
+
+    return(INIT_SUCCEEDED);
+}
+
+//+------------------------------------------------------------------+
+//| Expert deinitialization function                                 |
+//+------------------------------------------------------------------+
+void OnDeinit(const int reason)
+{
+    // Perform any necessary cleanup tasks
+}
+
+//+------------------------------------------------------------------+
+//| Expert start function                                            |
+//+------------------------------------------------------------------+
+void OnTick()
+{
+    // Check for valid trading opportunity based on correlation strategy
+    if (CheckCorrelation())
+    {
+        // Calculate entry and exit points
+        double EntryPrice = Ask;
+        double StopLossPrice = EntryPrice - StopLoss * MarketInfo(Symbol(), MODE_POINT);
+        double TakeProfitPrice = EntryPrice + TakeProfit * MarketInfo(Symbol(), MODE_POINT);
+
+        // Open a trade with calculated parameters
+        int ticket = OrderSend(Symbol(), OP_BUY, LotSize, EntryPrice, 0, StopLossPrice, TakeProfitPrice, '', 0, 0, Green);
+
+        if (ticket > 0)
+        {
+            Print('Trade opened successfully!');
+        }
+        else
+        {
+            Print('Error opening trade: ', GetLastError());
+        }
+    }
+}
+
+//+------------------------------------------------------------------+
+//| Check correlation for trading opportunity                        |
+//+------------------------------------------------------------------+
+bool CheckCorrelation()
+{
+    // Implement correlation trading strategy here
+    // Return true if a viable trading opportunity is found, false otherwise
+    return true;
+}
